@@ -1,5 +1,5 @@
 {
-  "name": "artemeon/confluence-api",
+  "name": "artemeon/confluence",
   "description": "Connect to the Atlassian Confluence API",
   "license": "MIT",
   "type": "library",
@@ -8,5 +8,19 @@
     "guzzlehttp/guzzle": "~7.4",
     "ext-json": "*",
     "ext-mbstring": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.0",
+    "vimeo/psalm": "^3.16"
+  },
+  "autoload": {
+    "psr-4": {
+      "Artemeon\\Confluence\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Artemeon\\Confluence\\Tests\\": "tests/"
+    }
   }
 }
