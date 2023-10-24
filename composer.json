@@ -1,0 +1,12 @@
+{
+  "name": "artemeon/confluence-api",
+  "description": "Connect to the Atlassian Confluence API",
+  "license": "MIT",
+  "type": "library",
+  "require": {
+    "php": ">=8.1",
+    "guzzlehttp/guzzle": "~7.4",
+    "ext-json": "*",
+    "ext-mbstring": "*"
+  }
+}
