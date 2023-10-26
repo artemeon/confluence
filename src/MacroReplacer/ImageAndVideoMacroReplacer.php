@@ -17,13 +17,13 @@ class ImageAndVideoMacroReplacer implements MacroReplacerInterface
                 $attachmentFileName = $match[1];
                 $fileExtension = pathinfo($attachmentFileName, PATHINFO_EXTENSION);
 
-                // Unterscheide zwischen Bildern und Videos
+                //Distinguish between images and videos
                 if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
                     return '<img src="' . $attachmentFileName . '">';
                 } elseif (in_array($fileExtension, ['mp4', 'avi', 'mkv', 'mov'])) {
                     return '<video controls><source src="' . $attachmentFileName . '" type="video/' . $fileExtension . '">Your browser does not support the video tag.</video>';
                 } else {
-                    // Standardmäßig wird ein Link zum Anhang erstellt
+                    // By default, a link to the attachment is created
                     return '<a href="' . $attachmentFileName . '">' . $attachmentFileName . '</a>';
                 }
             },

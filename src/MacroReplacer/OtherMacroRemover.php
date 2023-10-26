@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Artemeon\Confluence\MacroReplacer;
 
 /**
- * Entferne alle übrigen Macros aus dem Input
+ * Remove all remaining macros from the input
  */
 class OtherMacroRemover implements MacroReplacerInterface
 {

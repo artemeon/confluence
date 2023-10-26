@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Artemeon\Confluence\MacroReplacer;
 
 /**
- * Ersetze <ac:structured-macro> durch <div> mit Klasse
+ * Replace <ac:structured-macro> with <div> with class
  */
 class StructuredMacroReplacer implements MacroReplacerInterface
 {
