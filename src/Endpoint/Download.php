@@ -32,6 +32,12 @@ class Download
 
     public function downloadPageContent(ConfluencePage $confluencePage, string $fileName)
     {
+        if (!$this->checkDownloadFolder()) {
+            echo 'Error: The download folder does not exist or could not be created.';
+
+            return;
+        }
+
         $htmlFile = $this->downloadFolder . '/' . $fileName;
         file_put_contents($htmlFile, $confluencePage->getContent());
     }
