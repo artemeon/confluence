@@ -22,10 +22,14 @@ class ConfluencePage
     {
         $this->rawData = $rawData;
 
-        $this->id = $rawData['id'];
-        $this->title = $rawData['title'];
-        $this->body = $rawData['body'];
-        $this->metadata = $rawData['metadata'];
+        $this->id = $rawData['id'] ?? null;
+        $this->type = $rawData['type'] ?? null;
+        $this->status = $rawData['status'] ?? null;
+        $this->title = $rawData['title'] ?? null;
+        $this->space = $rawData['space'] ?? null;
+        $this->version = $rawData['version'] ?? null;
+        $this->body = $rawData['body'] ?? null;
+        $this->metadata = $rawData['metadata'] ?? null;
     }
 
     public function getId(): ?string
@@ -90,5 +94,10 @@ class ConfluencePage
         }
 
         return $labels;
+    }
+
+    public function getRawData(): array
+    {
+        return $this->rawData;
     }
 }

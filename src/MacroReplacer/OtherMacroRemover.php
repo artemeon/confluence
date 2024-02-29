@@ -9,7 +9,6 @@ namespace Artemeon\Confluence\MacroReplacer;
  */
 class OtherMacroRemover implements MacroReplacerInterface
 {
-
     public function replace(string $haystack): string
     {
         return preg_replace('/<ac:[^>]*>.*?<\/ac:[^>]*>/is', '', $haystack);
