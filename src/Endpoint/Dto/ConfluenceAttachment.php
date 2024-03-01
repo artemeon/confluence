@@ -19,7 +19,7 @@ class ConfluenceAttachment
 
     public function findDownloadPath(): ?string
     {
-        return (string)$this->rawData['_links']['download'] ?? null;
+        return $this->rawData['_links']['download'] ?? null;
     }
 
     public function getTitle(): string

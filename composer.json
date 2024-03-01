@@ -3,6 +3,9 @@
   "description": "Connect to the Atlassian Confluence API",
   "license": "MIT",
   "type": "library",
+  "scripts": {
+    "phpstan": "php ./vendor/bin/phpstan analyse --memory-limit=4G"
+  },
   "require": {
     "php": ">=8.1",
     "guzzlehttp/guzzle": "~7.4",
@@ -11,7 +14,9 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^8.0",
-    "vimeo/psalm": "^3.16"
+    "phpstan/phpstan": "^1.10",
+    "phpstan/extension-installer": "^1.3",
+    "phpstan/phpstan-phpunit": "^1.3"
   },
   "autoload": {
     "psr-4": {
@@ -21,6 +26,11 @@
   "autoload-dev": {
     "psr-4": {
       "Artemeon\\Confluence\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "phpstan/extension-installer": true
     }
   }
 }
