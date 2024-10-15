@@ -7,6 +7,7 @@ use Artemeon\Confluence\Endpoint\Dto\ConfluenceAttachment;
 use Artemeon\Confluence\Endpoint\Dto\ConfluencePage;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class Content
 {
@@ -20,15 +21,16 @@ class Content
     }
 
     /**
+     * Use the Confluence Content API to retrieve all pages from a given space
+     *
      * @param  string  $spaceKey
      * @param  int  $limit
      * @param  int|null  $offset
      * @return ConfluencePage[]
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function findPagesInSpace(string $spaceKey, int $limit = 2000, ?int $offset = null): array
     {
-        // Use the Confluence Content API to retrieve page content
         $foundEntries = 0;
         $pages = [];
 
@@ -67,7 +69,6 @@ class Content
      */
     public function findPageContent(string $pageId): ConfluencePage
     {
-        // Use the Confluence Content API to retrieve page content
         $response = $this->client->get(
             'wiki/rest/api/content/' . $pageId,
             array_merge([
