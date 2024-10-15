@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Artemeon\Confluence\Endpoint\Dto;
 
+use DateTime;
+
 class ConfluencePage
 {
     private ?string $id;
@@ -14,6 +16,7 @@ class ConfluencePage
     private ?array $version;
     private ?array $body;
     private ?array $metadata;
+    private ?DateTime $lastUpdated;
 
     private array $rawData;
     private string $content;
@@ -30,6 +33,7 @@ class ConfluencePage
         $this->version = $rawData['version'] ?? null;
         $this->body = $rawData['body'] ?? null;
         $this->metadata = $rawData['metadata'] ?? null;
+        $this->lastUpdated = isset($rawData['history']['lastUpdated']['when']) ? new DateTime($rawData['history']['lastUpdated']['when']) : null;
     }
 
     public function getId(): ?string
@@ -70,7 +74,7 @@ class ConfluencePage
     public function getContent(): string
     {
         if (empty($this->content)) {
-            $this->content = $this->getBody()['storage']['value'];
+            $this->content = $this->getBody()['storage']['value'] ?? '';
         }
 
         return $this->content;
@@ -89,11 +93,16 @@ class ConfluencePage
     public function getLabels(): array {
         $labels = [];
 
-        foreach ($this->getMetadata()['labels']['results'] as $key => $labelData) {
+        foreach ($this->getMetadata()['labels']['results'] as $labelData) {
             $labels[] = new ConfluenceLabel($labelData['id'], $labelData['name'], $labelData['prefix'], $labelData['label']);
         }
 
         return $labels;
+    }
+
+    public function getLastUpdated(): ?DateTime
+    {
+        return $this->lastUpdated;
     }
 
     public function getRawData(): array
