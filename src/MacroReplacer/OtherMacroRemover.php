@@ -11,6 +11,7 @@ class OtherMacroRemover implements MacroReplacerInterface
 {
     public function replace(string $haystack): string
     {
-        return preg_replace('/<ac:[^>]*>.*?<\/ac:[^>]*>/is', '', $haystack);
+        $haystack = preg_replace('/<ac:[^>]+>.*?<\/ac:[^>]+>/is', '', $haystack);
+        return preg_replace('/<\/ac:([a-zA-Z0-9]+)>/', '', $haystack);
     }
 }

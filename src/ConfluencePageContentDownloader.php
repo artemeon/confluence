@@ -23,7 +23,7 @@ class ConfluencePageContentDownloader
         $this->downloadEndpoint = $downloadEndpoint;
     }
 
-    public function downloadPageContent(ConfluencePage $page): void
+    public function downloadPageContent(ConfluencePage $page, bool $withAttachments = true): void
     {
         try {
             foreach ($this->macroReplacers as $macroReplacer) {
@@ -34,8 +34,11 @@ class ConfluencePageContentDownloader
 
             $this->downloadEndpoint->downloadPageContent($page, 'content.html');
 
-            $attachments = $this->contentEndpoint->findChildAttachments($page->getId());
+            if (!$withAttachments) {
+                return;
+            }
 
+            $attachments = $this->contentEndpoint->findChildAttachments($page->getId());
             foreach ($attachments as $attachment) {
                 $this->downloadEndpoint->downloadAttachment($attachment);
             }

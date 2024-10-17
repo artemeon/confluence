@@ -7,6 +7,7 @@ use Artemeon\Confluence\Endpoint\Dto\ConfluenceAttachment;
 use Artemeon\Confluence\Endpoint\Dto\ConfluencePage;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class Content
 {
@@ -20,13 +21,56 @@ class Content
     }
 
     /**
+     * Use the Confluence Content API to retrieve all pages from a given space
+     *
+     * @param  string  $spaceKey
+     * @param  int  $limit
+     * @param  int|null  $offset
+     * @return ConfluencePage[]
+     * @throws GuzzleException
+     */
+    public function findPagesInSpace(string $spaceKey, int $limit = 2000, ?int $offset = null): array
+    {
+        $foundEntries = 0;
+        $pages = [];
+
+        do {
+            $response = $this->client->get(
+                'wiki/rest/api/content',
+                array_merge([
+                    'query' => array_filter([
+                        'spaceKey' => $spaceKey,
+                        'expand' => 'history.lastUpdated,metadata.labels,body.storage',
+                        'status' => 'current',
+                        'start' => $offset,
+                        'limit' => 200,
+                    ]),
+                ], $this->auth->getAuthenticationArray())
+            );
+
+            if ($response->getStatusCode() !== 200) {
+                throw new Exception('Error retrieving pages by Space Key. HTTP status code: '.$response->getStatusCode());
+            }
+            $content = json_decode($response->getBody()->getContents(), true);
+
+            foreach ($content['results'] ?? [] as $pageData) {
+                $pages[$pageData['id']] = new ConfluencePage($pageData);
+            }
+
+            $offset += $content['limit'];
+            $foundEntries += $content['size'];
+        } while ($foundEntries <= $limit && $content['size'] >= $content['limit']);
+
+        return $pages;
+    }
+
+    /**
      * Use the Confluence Content API to retrieve page content
      */
     public function findPageContent(string $pageId): ConfluencePage
     {
-        // Use the Confluence Content API to retrieve page content
         $response = $this->client->get(
-            'content/' . $pageId,
+            'wiki/rest/api/content/' . $pageId,
             array_merge([
                 'query' => [
                     'expand' => 'body.storage,version,space,metadata.labels'
@@ -49,7 +93,7 @@ class Content
     public function findChildAttachments(string $pageId): array
     {
         $response = $this->client->get(
-            'content/' . $pageId . '/child/attachment',
+            'wiki/rest/api/content/' . $pageId . '/child/attachment',
             array_merge([], $this->auth->getAuthenticationArray())
         );
 
