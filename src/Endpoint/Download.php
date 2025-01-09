@@ -38,7 +38,7 @@ class Download
             return;
         }
 
-        $htmlFile = $this->downloadFolder.'/'.$fileName;
+        $htmlFile = $this->downloadFolder . '/' . $fileName;
         file_put_contents($htmlFile, $confluencePage->getContent());
     }
 
@@ -53,7 +53,7 @@ class Download
         if ($this->shouldAttachmentBeUpdated($attachment)) {
             // Verwende den relativen Pfad aus der API, um das Attachment herunterzuladen
             $attachmentContent = $this->client->get(
-                '/wiki/'.$attachment->findDownloadPath(),
+                '/wiki/' . $attachment->findDownloadPath(),
                 array_merge([], $this->auth->getAuthenticationArray())
             )->getBody()->getContents();
 
@@ -63,7 +63,7 @@ class Download
 
     private function getAttachmentFilePath(ConfluenceAttachment $attachment): string
     {
-        return $this->downloadFolder.'/'.$attachment->getTitle();
+        return $this->downloadFolder . '/' . $attachment->getTitle();
     }
 
     private function shouldAttachmentBeUpdated(ConfluenceAttachment $attachment): bool
