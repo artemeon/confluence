@@ -94,7 +94,11 @@ class Content
     {
         $response = $this->client->get(
             'wiki/rest/api/content/' . $pageId . '/child/attachment',
-            array_merge([], $this->auth->getAuthenticationArray())
+            array_merge([
+                'query' => [
+                    'expand' => 'history,history.lastUpdated'
+                ]
+            ], $this->auth->getAuthenticationArray())
         );
 
         if ($response->getStatusCode() === 200) {
