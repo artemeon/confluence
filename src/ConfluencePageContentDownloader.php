@@ -46,7 +46,7 @@ class ConfluencePageContentDownloader
                 $this->downloadEndpoint->downloadAttachment($attachment);
             }
         } catch (Exception $e) {
-            echo 'An error has occurred: '.$e->getMessage();
+            echo 'An error has occurred: ' . $e->getMessage();
         }
     }
 
