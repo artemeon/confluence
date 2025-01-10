@@ -50,12 +50,33 @@ class Download
             return;
         }
 
-        // Verwende den relativen Pfad aus der API, um das Attachment herunterzuladen
-        $attachmentContent = $this->client->get(
-            '/wiki/' . $attachment->findDownloadPath(),
-            array_merge([], $this->auth->getAuthenticationArray())
-        )->getBody()->getContents();
+        if ($this->shouldAttachmentBeUpdated($attachment)) {
+            // Verwende den relativen Pfad aus der API, um das Attachment herunterzuladen
+            $attachmentContent = $this->client->get(
+                '/wiki/' . $attachment->findDownloadPath(),
+                array_merge([], $this->auth->getAuthenticationArray())
+            )->getBody()->getContents();
 
-        file_put_contents($this->downloadFolder . '/' . $attachment->getTitle(), $attachmentContent);
+            file_put_contents($this->getAttachmentFilePath($attachment), $attachmentContent);
+        }
+    }
+
+    private function getAttachmentFilePath(ConfluenceAttachment $attachment): string
+    {
+        return $this->downloadFolder . '/' . $attachment->getTitle();
+    }
+
+    private function shouldAttachmentBeUpdated(ConfluenceAttachment $attachment): bool
+    {
+        $filepath = $this->getAttachmentFilePath($attachment);
+
+        if (file_exists($filepath)) {
+            $filemtime = filemtime($filepath);
+            if (is_int($filemtime)) {
+                return $filemtime < $attachment->getLastUpdated()->getTimestamp();
+            }
+        }
+
+        return true;
     }
 }
