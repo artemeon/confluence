@@ -26,14 +26,14 @@ class ConfluencePageContentDownloader
 
     public function downloadPageContent(ConfluencePage $page, bool $withAttachments = true): void
     {
-        $page = $this->repairPageContent($page);
-
         try {
             foreach ($this->macroReplacers as $macroReplacer) {
                 if ($macroReplacer instanceof MacroReplacerInterface) {
                     $page->setContent($macroReplacer->replace($page->getContent()));
                 }
             }
+
+            $page = $this->repairPageContent($page);
 
             $this->downloadEndpoint->downloadPageContent($page, 'content.html');
 
