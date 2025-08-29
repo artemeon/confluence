@@ -34,7 +34,7 @@ class InfoBoxReplacer implements MacroReplacerInterface
 
                 return sprintf(
                     '
-                    <div class="flex flex-row items-start %s gap-2 px-4">
+                    <div class="flex flex-row items-start %s gap-2 px-4 mb-4">
                         <p>%s</p>
                         <div>%s</div>
                     </div>
