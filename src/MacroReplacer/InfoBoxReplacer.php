@@ -35,8 +35,10 @@ class InfoBoxReplacer implements MacroReplacerInterface
     private function infoBoxStyling(): string
     {
         return '
-        <div class="flex flex-row items-start bg-blue-100 gap-2 p-4">
-            <agp-icon name="info-circle" size="lg" type="duotone" class="mt-1 [--fa-primary-color:var(--color-white)] [--fa-secondary-color:var(--color-primary-500)] [--fa-secondary-opacity:1]"></agp-icon>
+        <div class="flex flex-row items-start bg-blue-100 gap-2 px-4">
+            <p>
+                <agp-icon name="info-circle" size="xl" type="duotone" class="mt-1" styles="--fa-primary-color:var(--color-white);--fa-secondary-opacity:1;--fa-secondary-color:var(--color-blue-700);"></agp-icon>
+            </p>
             <div>%s</div>
         </div>
         ';
@@ -47,7 +49,7 @@ class InfoBoxReplacer implements MacroReplacerInterface
         return '
         <div class="flex flex-row items-start bg-yellow-100 gap-2 px-4">
             <p>
-                <agp-icon name="lightbulb" size="lg" type="duotone" class="mt-1" styles="--fa-primary-color:var(--color-gray-500);--fa-secondary-opacity:1;--fa-secondary-color:var(--color-yellow-700);"></agp-icon>
+                <agp-icon name="lightbulb" size="xl" type="duotone" class="mt-1" styles="--fa-primary-color:var(--color-gray-500);--fa-secondary-opacity:1;--fa-secondary-color:var(--color-yellow-700);"></agp-icon>
             </p>
             <div>%s</div>
         </div>
