@@ -31,9 +31,9 @@ class ImageAndVideoMacroReplacer implements MacroReplacerInterface
 
                 // Distinguish between images and videos
                 if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                    $imgTag = '<img src="'.$this->sourceFolder.$attachmentFileName.'" alt="could not load image">';
+                    $imgTag = '<img src="'.$this->sourceFolder.$attachmentFileName.'" alt="'.htmlspecialchars($attachmentFileName, ENT_QUOTES).'">';
                     if ($caption !== '') {
-                        return '<figure>'.$imgTag.'<figcaption class="text-center">'.$caption.'</figcaption></figure>';
+                        return '<figure>'.$imgTag.'<figcaption>'.$caption.'</figcaption></figure>';
                     }
 
                     return $imgTag;
