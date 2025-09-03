@@ -21,7 +21,7 @@ class StructuredMacroReplacer implements MacroReplacerInterface
                     $macroContent = $inner[1];
                 }
 
-                return sprintf('<div class="confluence-panel-%s"><div>%s</div></div>', $macroName, $macroContent);
+                return sprintf('<div class="documentation-panel-%s"><div>%s</div></div>', $macroName, $macroContent);
             },
             $haystack
         );

@@ -24,7 +24,7 @@ class AdfPanelReplacer implements MacroReplacerInterface
                 preg_match('/<ac:adf-content[^>]*>(.*?)<\/ac:adf-content>/is', $content, $bodyMatch);
                 $body = $bodyMatch[1] ?? $content;
 
-                return sprintf('<div class="confluence-panel-%s"><div>%s</div></div>', $panelType, $body);
+                return sprintf('<div class="documentation-panel-%s"><div>%s</div></div>', $panelType, $body);
             },
             $haystack
         );

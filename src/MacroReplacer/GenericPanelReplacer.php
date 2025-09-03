@@ -27,7 +27,7 @@ class GenericPanelReplacer implements MacroReplacerInterface
                 $body = $bodyMatch[1] ?? $content;
 
                 return sprintf(
-                    '<div class="confluence-panel-custom %s %s"><div>%s</div></div>',
+                    '<div class="documentation-panel-custom" panel-color="%s" panel-icon="%s"><div>%s</div></div>',
                     htmlspecialchars($bgColor, ENT_QUOTES),
                     htmlspecialchars($icon, ENT_QUOTES),
                     $body
