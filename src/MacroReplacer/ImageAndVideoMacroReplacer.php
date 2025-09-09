@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Artemeon\Confluence\MacroReplacer;
 
 /**
- * Ersetze <ac:image> durch HTML <img> oder <video> Tags, abhängig vom Dateityp
+ * Replace <ac:image> with HTML <img> or <video> tags, depending on the file type
  */
 class ImageAndVideoMacroReplacer implements MacroReplacerInterface
 {
