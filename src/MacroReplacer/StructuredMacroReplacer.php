@@ -12,11 +12,16 @@ class StructuredMacroReplacer implements MacroReplacerInterface
     public function replace(string $haystack): string
     {
         return preg_replace_callback(
-            '/<ac:structured-macro\s+ac:name="([^"]+)"[^>]*>(.*?)<\/ac:structured-macro>/is',
+            '/<ac:structured-macro\s+ac:name="(info|note|warning|error|success)"[^>]*>(.*?)<\/ac:structured-macro>/is',
             function ($match) {
                 $macroName = $match[1];
                 $macroContent = $match[2];
-                return '<div class="' . $macroName . '">' . $macroContent . '</div>';
+
+                if (preg_match('/<ac:rich-text-body[^>]*>(.*?)<\/ac:rich-text-body>/is', $macroContent, $inner)) {
+                    $macroContent = $inner[1];
+                }
+
+                return sprintf('<div class="documentation-panel-%s"><div>%s</div></div>', $macroName, $macroContent);
             },
             $haystack
         );
