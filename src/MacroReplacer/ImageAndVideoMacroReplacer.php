@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Artemeon\Confluence\MacroReplacer;
 
 /**
- * Ersetze <ac:image> durch HTML <img> oder <video> Tags, abhängig vom Dateityp
+ * Replace <ac:image> with HTML <img> or <video> tags, depending on the file type
  */
 class ImageAndVideoMacroReplacer implements MacroReplacerInterface
 {
@@ -13,7 +13,7 @@ class ImageAndVideoMacroReplacer implements MacroReplacerInterface
 
     public function __construct(string $sourceFolder = '')
     {
-        if (!str_ends_with($sourceFolder, '/')) {
+        if (! str_ends_with($sourceFolder, '/')) {
             $sourceFolder .= '/';
         }
 
@@ -23,19 +23,25 @@ class ImageAndVideoMacroReplacer implements MacroReplacerInterface
     public function replace(string $haystack): string
     {
         return preg_replace_callback(
-            '/<ac:image[^>]*>.*?<ri:attachment\s+ri:filename="([^"]+)"[^>]*>.*?<\/ac:image>/is',
+            '/<ac:image[^>]*>.*?<ri:attachment\s+ri:filename="([^"]+)"[^>]*>.*?(?:<ac:caption>(.*?)<\/ac:caption>)?.*?<\/ac:image>/is',
             function ($match) {
                 $attachmentFileName = $match[1];
+                $caption = isset($match[2]) ? trim($match[2]) : '';
                 $fileExtension = pathinfo($attachmentFileName, PATHINFO_EXTENSION);
 
-                //Distinguish between images and videos
+                // Distinguish between images and videos
                 if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                    return '<img src="' . $this->sourceFolder . $attachmentFileName . '">';
+                    $imgTag = '<img src="'.$this->sourceFolder.$attachmentFileName.'" alt="'.htmlspecialchars($attachmentFileName, ENT_QUOTES).'">';
+                    if ($caption !== '') {
+                        return '<figure>'.$imgTag.'<figcaption style="text-align: center;">'.$caption.'</figcaption></figure>';
+                    }
+
+                    return $imgTag;
                 } elseif (in_array($fileExtension, ['mp4', 'avi', 'mkv', 'mov'])) {
-                    return '<video controls><source src="' . $this->sourceFolder . $attachmentFileName . '" type="video/' . $fileExtension . '">Your browser does not support the video tag.</video>';
+                    return '<video controls><source src="'.$this->sourceFolder.$attachmentFileName.'" type="video/'.$fileExtension.'">Your browser does not support the video tag.</video>';
                 } else {
                     // By default, a link to the attachment is created
-                    return '<a href="' . $this->sourceFolder . $attachmentFileName . '">' . $this->sourceFolder . $attachmentFileName . '</a>';
+                    return '<a href="'.$this->sourceFolder.$attachmentFileName.'">'.$this->sourceFolder.$attachmentFileName.'</a>';
                 }
             },
             $haystack
