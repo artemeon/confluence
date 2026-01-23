@@ -30,7 +30,7 @@ class Download
         return true;
     }
 
-    public function downloadPageContent(ConfluencePage $confluencePage, string $fileName)
+    public function downloadPageContent(ConfluencePage $confluencePage, string $fileName): void
     {
         if (!$this->checkDownloadFolder()) {
             echo 'Error: The download folder does not exist or could not be created.';

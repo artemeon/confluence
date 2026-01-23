@@ -8,16 +8,22 @@ use DateTime;
 
 class ConfluenceAttachment
 {
-    private array $rawData;
-
     private string $title;
 
     private ?DateTime $lastUpdated;
 
-    public function __construct(array $rawData)
+    /**
+     * @param array{
+     *     title: string,
+     *     history?: array{
+     *         lastUpdated?: array{
+     *             when?: string|null,
+     *         },
+     *     },
+     * } $rawData
+     */
+    public function __construct(private array $rawData)
     {
-        $this->rawData = $rawData;
-
         $this->title = $rawData['title'];
         $this->lastUpdated = isset($rawData['history']['lastUpdated']['when']) ? new DateTime($rawData['history']['lastUpdated']['when']) : null;
     }

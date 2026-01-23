@@ -89,6 +89,8 @@ class Content
 
     /**
      * Use descendants.attachment in the Content API to get attachments
+     *
+     * @return list<ConfluenceAttachment>
      */
     public function findChildAttachments(string $pageId): array
     {
@@ -101,17 +103,17 @@ class Content
             ], $this->auth->getAuthenticationArray())
         );
 
-        if ($response->getStatusCode() === 200) {
-            $attachmentsData = json_decode($response->getBody()->getContents(), true);
-            $attachments = [];
-
-            foreach ($attachmentsData['results'] as $attachmentRawData) {
-                $attachments[] = new ConfluenceAttachment($attachmentRawData);
-            }
-
-            return $attachments;
-        } else {
+        if ($response->getStatusCode() !== 200) {
             throw new Exception('Fehler beim Abrufen der Attachments. HTTP-Statuscode: ' . $response->getStatusCode());
         }
+
+        $attachmentsData = json_decode($response->getBody()->getContents(), true);
+        $attachments = [];
+
+        foreach ($attachmentsData['results'] as $attachmentRawData) {
+            $attachments[] = new ConfluenceAttachment($attachmentRawData);
+        }
+
+        return $attachments;
     }
 }

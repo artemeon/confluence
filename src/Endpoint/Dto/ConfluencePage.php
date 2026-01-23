@@ -12,19 +12,30 @@ class ConfluencePage
     private ?string $type;
     private ?string $status;
     private ?string $title;
+    /**
+     * @var array<array-key,mixed>|null
+     */
     private ?array $space;
+    /**
+     * @var array<array-key,mixed>|null
+     */
     private ?array $version;
+    /**
+     * @var array<array-key,mixed>|null
+     */
     private ?array $body;
+    /**
+     * @var array<array-key,mixed>|null
+     */
     private ?array $metadata;
     private ?DateTime $lastUpdated;
-
-    private array $rawData;
     private string $content;
 
-    public function __construct(array $rawData)
+    /**
+     * @param array<array-key,mixed> $rawData
+     */
+    public function __construct(private array $rawData)
     {
-        $this->rawData = $rawData;
-
         $this->id = $rawData['id'] ?? null;
         $this->type = $rawData['type'] ?? null;
         $this->status = $rawData['status'] ?? null;
@@ -56,16 +67,25 @@ class ConfluencePage
         return $this->title;
     }
 
+    /**
+     * @return array<array-key,mixed>|null
+     */
     public function getSpace(): ?array
     {
         return $this->space;
     }
 
+    /**
+     * @return array<array-key,mixed>|null
+     */
     public function getVersion(): ?array
     {
         return $this->version;
     }
 
+    /**
+     * @return array<array-key,mixed>|null
+     */
     public function getBody(): ?array
     {
         return $this->body;
@@ -85,12 +105,19 @@ class ConfluencePage
         $this->content = $content;
     }
 
+    /**
+     * @return array<array-key,mixed>|null
+     */
     public function getMetadata(): ?array
     {
         return $this->metadata;
     }
 
-    public function getLabels(): array {
+    /**
+     * @return list<ConfluenceLabel>
+     */
+    public function getLabels(): array
+    {
         $labels = [];
 
         foreach ($this->getMetadata()['labels']['results'] as $labelData) {
@@ -105,6 +132,9 @@ class ConfluencePage
         return $this->lastUpdated;
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function getRawData(): array
     {
         return $this->rawData;
