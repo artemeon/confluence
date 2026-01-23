@@ -29,12 +29,16 @@ class AdfPanelReplacer implements MacroReplacerInterface
             $haystack
         );
 
+        if ($result === null) {
+            return $haystack;
+        }
+
         $result = preg_replace(
             '/<ac:adf-extension[^>]*>(.*?)<\/ac:adf-extension>/is',
             '$1',
             $result
         );
 
-        return $result;
+        return $result ?? $haystack;
     }
 }

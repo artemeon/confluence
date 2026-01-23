@@ -47,7 +47,12 @@ class ConfluencePageContentDownloader
                 return;
             }
 
-            $attachments = $this->contentEndpoint->findChildAttachments($page->getId());
+            $pageId = $page->getId();
+            if ($pageId === null) {
+                return;
+            }
+
+            $attachments = $this->contentEndpoint->findChildAttachments($pageId);
             foreach ($attachments as $attachment) {
                 $this->downloadEndpoint->downloadAttachment($attachment);
             }
@@ -64,7 +69,7 @@ class ConfluencePageContentDownloader
         $domDocument->loadHTML($page->getContent());
         if (!$domDocument->validate()) {
             $pageContent = '';
-            foreach ($domDocument->getElementsByTagName('body')->item(0)->childNodes as $child) {
+            foreach ($domDocument->getElementsByTagName('body')->item(0)->childNodes ?? [] as $child) {
                 $pageContent .= $domDocument->saveHTML($child);
             }
 

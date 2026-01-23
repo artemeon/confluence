@@ -34,6 +34,6 @@ class GenericPanelReplacer implements MacroReplacerInterface
                 );
             },
             $haystack
-        );
+        ) ?? $haystack;
     }
 }
