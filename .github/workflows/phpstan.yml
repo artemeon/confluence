@@ -9,3 +9,5 @@ on:
 jobs:
   phpstan:
     uses: artemeon/.shared/.github/workflows/phpstan.yml@main
+  phpstan-php84:
+    uses: artemeon/.shared/.github/workflows/phpstan-php84-upwards.yml
