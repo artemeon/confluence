@@ -24,6 +24,6 @@ class StructuredMacroReplacer implements MacroReplacerInterface
                 return sprintf('<div class="documentation-panel-%s"><div>%s</div></div>', $macroName, $macroContent);
             },
             $haystack
-        );
+        ) ?? $haystack;
     }
 }

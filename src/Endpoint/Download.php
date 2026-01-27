@@ -6,6 +6,7 @@ namespace Artemeon\Confluence\Endpoint;
 
 use Artemeon\Confluence\Endpoint\Dto\ConfluenceAttachment;
 use Artemeon\Confluence\Endpoint\Dto\ConfluencePage;
+use DateTime;
 use GuzzleHttp\Client;
 
 class Download
@@ -70,10 +71,15 @@ class Download
     {
         $filepath = $this->getAttachmentFilePath($attachment);
 
+        $lastUpdated = $attachment->getLastUpdated();
+        if (!$lastUpdated instanceof DateTime) {
+            return true;
+        }
+
         if (file_exists($filepath)) {
             $filemtime = filemtime($filepath);
             if (is_int($filemtime)) {
-                return $filemtime < $attachment->getLastUpdated()->getTimestamp();
+                return $filemtime < $lastUpdated->getTimestamp();
             }
         }
 

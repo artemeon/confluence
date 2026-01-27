@@ -16,8 +16,7 @@ class LayoutSectionMacroReplacer implements MacroReplacerInterface
                 return '<div data-macro-type="'.$macroType.'">'.$macroContent.'</div>';
             },
             $haystack
-        );
-
+        ) ?? $haystack;
 
         return preg_replace_callback(
             '/<ac:layout-cell>(.*?)<\/ac:layout-cell>/is',
@@ -26,6 +25,6 @@ class LayoutSectionMacroReplacer implements MacroReplacerInterface
                 return '<div>'.$macroContent.'</div>';
             },
             $haystack
-        );
+        ) ?? $haystack;
     }
 }

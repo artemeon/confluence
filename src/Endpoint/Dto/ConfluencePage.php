@@ -118,9 +118,15 @@ class ConfluencePage
      */
     public function getLabels(): array
     {
+        $metadata = $this->getMetadata();
+
+        if ($metadata === null || !array_key_exists('labels', $metadata)) {
+            return [];
+        }
+
         $labels = [];
 
-        foreach ($this->getMetadata()['labels']['results'] as $labelData) {
+        foreach ($metadata['labels']['results'] as $labelData) {
             $labels[] = new ConfluenceLabel($labelData['id'], $labelData['name'], $labelData['prefix'], $labelData['label']);
         }
 

@@ -45,6 +45,6 @@ class ImageAndVideoMacroReplacer implements MacroReplacerInterface
                 }
             },
             $haystack
-        );
+        ) ?? $haystack;
     }
 }
