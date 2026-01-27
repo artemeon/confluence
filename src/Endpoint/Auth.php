@@ -15,6 +15,9 @@ class Auth
         $this->apiToken = $apiToken;
     }
 
+    /**
+     * @return array{auth:array{string,string}}
+     */
     public function getAuthenticationArray(): array
     {
         return ['auth' => [$this->username, $this->apiToken]];

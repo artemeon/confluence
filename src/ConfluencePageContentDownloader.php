@@ -13,10 +13,16 @@ use Exception;
 
 class ConfluencePageContentDownloader
 {
+    /**
+     * @var MacroReplacerInterface[]
+     */
     private array $macroReplacers;
     private Content $contentEndpoint;
     private Download $downloadEndpoint;
 
+    /**
+     * @param MacroReplacerInterface[] $macroReplacers
+     */
     public function __construct(Content $contentEndpoint, Download $downloadEndpoint, array $macroReplacers = [])
     {
         $this->macroReplacers = $macroReplacers;
