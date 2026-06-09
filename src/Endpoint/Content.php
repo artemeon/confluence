@@ -28,6 +28,7 @@ class Content
      * @param  int|null  $offset
      * @return ConfluencePage[]
      * @throws GuzzleException
+     * @throws Exception
      */
     public function findPagesInSpace(string $spaceKey, int $limit = 2000, ?int $offset = null): array
     {
@@ -66,6 +67,9 @@ class Content
 
     /**
      * Use the Confluence Content API to retrieve page content
+     *
+     * @throws GuzzleException
+     * @throws Exception
      */
     public function findPageContent(string $pageId): ConfluencePage
     {
@@ -91,6 +95,8 @@ class Content
      * Use descendants.attachment in the Content API to get attachments
      *
      * @return list<ConfluenceAttachment>
+     * @throws GuzzleException
+     * @throws Exception
      */
     public function findChildAttachments(string $pageId): array
     {
