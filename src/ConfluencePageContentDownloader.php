@@ -10,6 +10,8 @@ use Artemeon\Confluence\Endpoint\Dto\ConfluencePage;
 use Artemeon\Confluence\MacroReplacer\MacroReplacerInterface;
 use DOMDocument;
 use Exception;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class ConfluencePageContentDownloader
 {
@@ -19,15 +21,17 @@ class ConfluencePageContentDownloader
     private array $macroReplacers;
     private Content $contentEndpoint;
     private Download $downloadEndpoint;
+    private LoggerInterface $logger;
 
     /**
      * @param MacroReplacerInterface[] $macroReplacers
      */
-    public function __construct(Content $contentEndpoint, Download $downloadEndpoint, array $macroReplacers = [])
+    public function __construct(Content $contentEndpoint, Download $downloadEndpoint, array $macroReplacers = [], ?LoggerInterface $logger = null)
     {
         $this->macroReplacers = $macroReplacers;
         $this->contentEndpoint = $contentEndpoint;
         $this->downloadEndpoint = $downloadEndpoint;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     public function downloadPageContent(ConfluencePage $page, bool $withAttachments = true): void
@@ -54,10 +58,13 @@ class ConfluencePageContentDownloader
 
             $attachments = $this->contentEndpoint->findChildAttachments($pageId);
             foreach ($attachments as $attachment) {
-                $this->downloadEndpoint->downloadAttachment($attachment);
+                $this->downloadEndpoint->downloadAttachment($attachment, $pageId);
             }
         } catch (Exception $e) {
-            echo 'An error has occurred: ' . $e->getMessage();
+            $this->logger->error(
+                sprintf('Failed to download Confluence page content for page "%s": %s', $page->getId() ?? 'unknown', $e->getMessage()),
+                ['exception' => $e],
+            );
         }
     }
 

@@ -8,6 +8,7 @@ use Artemeon\Confluence\Endpoint\Dto\ConfluenceAttachment;
 use Artemeon\Confluence\Endpoint\Dto\ConfluencePage;
 use DateTime;
 use GuzzleHttp\Client;
+use RuntimeException;
 
 class Download
 {
@@ -22,39 +23,30 @@ class Download
         $this->downloadFolder = $downloadFolder;
     }
 
-    private function checkDownloadFolder(): bool
+    private function ensureDownloadFolder(): void
     {
-        if (!is_dir($this->downloadFolder)) {
-            return mkdir($this->downloadFolder, 0755, true);
+        if (!is_dir($this->downloadFolder) && !mkdir($this->downloadFolder, 0755, true) && !is_dir($this->downloadFolder)) {
+            throw new RuntimeException(sprintf('The download folder "%s" does not exist and could not be created.', $this->downloadFolder));
         }
-
-        return true;
     }
 
     public function downloadPageContent(ConfluencePage $confluencePage, string $fileName): void
     {
-        if (!$this->checkDownloadFolder()) {
-            echo 'Error: The download folder does not exist or could not be created.';
-
-            return;
-        }
+        $this->ensureDownloadFolder();
 
         $htmlFile = $this->downloadFolder . '/' . $fileName;
         file_put_contents($htmlFile, $confluencePage->getContent());
     }
 
-    public function downloadAttachment(ConfluenceAttachment $attachment): void
+    public function downloadAttachment(ConfluenceAttachment $attachment, string $pageId): void
     {
-        if (!$this->checkDownloadFolder()) {
-            echo 'Error: The download folder does not exist or could not be created.';
-
-            return;
-        }
+        $this->ensureDownloadFolder();
 
         if ($this->shouldAttachmentBeUpdated($attachment)) {
-            // Verwende den relativen Pfad aus der API, um das Attachment herunterzuladen
+            // Download via the supported REST endpoint; the legacy /wiki/download servlet
+            // no longer accepts API-token authentication (returns HTTP 401).
             $attachmentContent = $this->client->get(
-                '/wiki/' . $attachment->findDownloadPath(),
+                '/wiki/rest/api/content/' . $pageId . '/child/attachment/' . $attachment->getId() . '/download',
                 array_merge([], $this->auth->getAuthenticationArray())
             )->getBody()->getContents();
 
