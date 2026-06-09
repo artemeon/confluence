@@ -66,10 +66,13 @@ class Content
     }
 
     /**
-     * Use the Confluence Content API to retrieve page content
+     * Fetches a single page by its ID from the Confluence Content API, expanding its
+     * stored body, version, space and labels into a {@see ConfluencePage}.
      *
-     * @throws GuzzleException
-     * @throws Exception
+     * @param string $pageId the Confluence content ID of the page to load
+     *
+     * @throws GuzzleException if the HTTP request fails (network error, timeout, …)
+     * @throws Exception if Confluence responds with a non-200 status code
      */
     public function findPageContent(string $pageId): ConfluencePage
     {
@@ -92,11 +95,15 @@ class Content
     }
 
     /**
-     * Use descendants.attachment in the Content API to get attachments
+     * Lists the attachments of a page via the Content API's child/attachment endpoint,
+     * expanding each attachment's history so its last-updated timestamp is available.
      *
-     * @return list<ConfluenceAttachment>
-     * @throws GuzzleException
-     * @throws Exception
+     * @param string $pageId the Confluence content ID of the parent page
+     *
+     * @return list<ConfluenceAttachment> the page's attachments, empty if it has none
+     *
+     * @throws GuzzleException if the HTTP request fails (network error, timeout, …)
+     * @throws Exception if Confluence responds with a non-200 status code
      */
     public function findChildAttachments(string $pageId): array
     {
