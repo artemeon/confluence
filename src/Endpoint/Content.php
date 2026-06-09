@@ -104,7 +104,7 @@ class Content
         );
 
         if ($response->getStatusCode() !== 200) {
-            throw new Exception('Fehler beim Abrufen der Attachments. HTTP-Statuscode: ' . $response->getStatusCode());
+            throw new Exception('Error retrieving attachments. HTTP status code: ' . $response->getStatusCode());
         }
 
         $attachmentsData = json_decode($response->getBody()->getContents(), true);
