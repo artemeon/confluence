@@ -43,10 +43,12 @@ class Download
         $this->ensureDownloadFolder();
 
         if ($this->shouldAttachmentBeUpdated($attachment)) {
-            // Download via the supported REST endpoint; the legacy /wiki/download servlet
-            // no longer accepts API-token authentication (returns HTTP 401).
+            // Download via the supported REST endpoint. Same Basic-auth credentials
+            // (email + API token) as every other request; only the endpoint changed:
+            // the legacy /wiki/download servlet rejects API-token auth (HTTP 401),
+            // while the REST API accepts it.
             $attachmentContent = $this->client->get(
-                '/wiki/rest/api/content/' . $pageId . '/child/attachment/' . $attachment->getId() . '/download',
+                'wiki/rest/api/content/' . $pageId . '/child/attachment/' . $attachment->getId() . '/download',
                 array_merge([], $this->auth->getAuthenticationArray())
             )->getBody()->getContents();
 
