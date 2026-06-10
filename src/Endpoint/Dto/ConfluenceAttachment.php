@@ -14,6 +14,7 @@ class ConfluenceAttachment
 
     /**
      * @param array{
+     *     id: string,
      *     title: string,
      *     history?: array{
      *         lastUpdated?: array{
@@ -28,9 +29,9 @@ class ConfluenceAttachment
         $this->lastUpdated = isset($rawData['history']['lastUpdated']['when']) ? new DateTime($rawData['history']['lastUpdated']['when']) : null;
     }
 
-    public function findDownloadPath(): ?string
+    public function getId(): string
     {
-        return $this->rawData['_links']['download'] ?? null;
+        return $this->rawData['id'];
     }
 
     public function getTitle(): string

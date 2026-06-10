@@ -28,6 +28,7 @@ class Content
      * @param  int|null  $offset
      * @return ConfluencePage[]
      * @throws GuzzleException
+     * @throws Exception
      */
     public function findPagesInSpace(string $spaceKey, int $limit = 2000, ?int $offset = null): array
     {
@@ -65,7 +66,13 @@ class Content
     }
 
     /**
-     * Use the Confluence Content API to retrieve page content
+     * Fetches a single page by its ID from the Confluence Content API, expanding its
+     * stored body, version, space and labels into a {@see ConfluencePage}.
+     *
+     * @param string $pageId the Confluence content ID of the page to load
+     *
+     * @throws GuzzleException if the HTTP request fails (network error, timeout, …)
+     * @throws Exception if Confluence responds with a non-200 status code
      */
     public function findPageContent(string $pageId): ConfluencePage
     {
@@ -88,9 +95,15 @@ class Content
     }
 
     /**
-     * Use descendants.attachment in the Content API to get attachments
+     * Lists the attachments of a page via the Content API's child/attachment endpoint,
+     * expanding each attachment's history so its last-updated timestamp is available.
      *
-     * @return list<ConfluenceAttachment>
+     * @param string $pageId the Confluence content ID of the parent page
+     *
+     * @return list<ConfluenceAttachment> the page's attachments, empty if it has none
+     *
+     * @throws GuzzleException if the HTTP request fails (network error, timeout, …)
+     * @throws Exception if Confluence responds with a non-200 status code
      */
     public function findChildAttachments(string $pageId): array
     {
@@ -104,7 +117,7 @@ class Content
         );
 
         if ($response->getStatusCode() !== 200) {
-            throw new Exception('Fehler beim Abrufen der Attachments. HTTP-Statuscode: ' . $response->getStatusCode());
+            throw new Exception('Error retrieving attachments. HTTP status code: ' . $response->getStatusCode());
         }
 
         $attachmentsData = json_decode($response->getBody()->getContents(), true);
