@@ -43,6 +43,39 @@ final class ConfluencePageContentDownloaderTest extends TestCase
         $downloader->downloadPageContent($this->page('123'));
     }
 
+    /**
+     * Regression test for #33547: page content arrives wrapped in a full HTML document whose
+     * doctype references the HTML 4.0 loose DTD. repairPageContent() must strip the wrapper down
+     * to the body inner HTML without ever validating against (and thus fetching) that external
+     * DTD, which previously triggered a "Failed to open stream: HTTP request failed!" warning in
+     * environments without outbound internet access.
+     */
+    public function testStripsHtmlDocumentWrapperWithoutFetchingExternalDtd(): void
+    {
+        $wrapped = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" '
+            . '"http://www.w3.org/TR/REC-html40/loose.dtd">'
+            . '<html><head><title>x</title></head><body><p>original</p></body></html>';
+
+        $savedContent = null;
+        $download = $this->createMock(Download::class);
+        $download->expects($this->once())->method('downloadPageContent')
+            ->with($this->callback(static function (ConfluencePage $page) use (&$savedContent): bool {
+                $savedContent = $page->getContent();
+
+                return true;
+            }), 'content.html');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('error');
+
+        $page = new ConfluencePage(['id' => '123', 'body' => ['storage' => ['value' => $wrapped]]]);
+
+        $downloader = new ConfluencePageContentDownloader(self::createStub(Content::class), $download, [], $logger);
+        $downloader->downloadPageContent($page, false);
+
+        self::assertSame('<p>original</p>', $savedContent);
+    }
+
     public function testDoesNotDownloadAttachmentsWhenDisabled(): void
     {
         $content = $this->createMock(Content::class);

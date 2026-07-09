@@ -68,15 +68,33 @@ class ConfluencePageContentDownloader
         }
     }
 
+    /**
+     * Normalises the page content by letting DOMDocument repair malformed markup and then
+     * stripping the document wrapper that loadHTML() adds, keeping only the body inner HTML.
+     *
+     * We deliberately do not call DOMDocument::validate(): it would validate the content
+     * against the HTML 4.0 Transitional DTD referenced in the doctype, which forces an
+     * outbound HTTP request to w3.org on every page. In locked-down environments without
+     * outbound internet access that request fails and PHP emits a warning. Validation adds
+     * no value here anyway (Confluence storage format is never valid HTML 4.0), so removing
+     * it also drops an unnecessary network dependency.
+     */
     private function repairPageContent(ConfluencePage $page): ConfluencePage
     {
+        $content = $page->getContent();
+        if ($content === '') {
+            return $page;
+        }
+
         $previousLibxmlState = libxml_use_internal_errors(true);
 
         $domDocument = new DOMDocument();
-        $domDocument->loadHTML($page->getContent());
-        if (!$domDocument->validate()) {
+        $domDocument->loadHTML($content, LIBXML_NONET);
+
+        $body = $domDocument->getElementsByTagName('body')->item(0);
+        if ($body !== null) {
             $pageContent = '';
-            foreach ($domDocument->getElementsByTagName('body')->item(0)->childNodes ?? [] as $child) {
+            foreach ($body->childNodes as $child) {
                 $pageContent .= $domDocument->saveHTML($child);
             }
 
