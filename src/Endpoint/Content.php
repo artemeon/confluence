@@ -41,7 +41,7 @@ class Content
                 array_merge([
                     'query' => array_filter([
                         'spaceKey' => $spaceKey,
-                        'expand' => 'history.lastUpdated,metadata.labels,body.storage',
+                        'expand' => 'history.lastUpdated,metadata.labels,body.storage,ancestors,extensions.position',
                         'status' => 'current',
                         'start' => $offset,
                         'limit' => 200,
@@ -62,7 +62,44 @@ class Content
             $foundEntries += $content['size'];
         } while ($foundEntries <= $limit && $content['size'] >= $content['limit']);
 
-        return $pages;
+        return $this->sortByPageTree($pages);
+    }
+
+    /**
+     * Orders the pages like the Confluence page tree: depth-first, siblings by manual
+     * position, unpositioned siblings by title. Pages whose parent is unknown become roots.
+     *
+     * @param array<array-key, ConfluencePage> $pages
+     * @return array<array-key, ConfluencePage>
+     */
+    private function sortByPageTree(array $pages): array
+    {
+        $children = [];
+        foreach ($pages as $page) {
+            $parentId = $page->getParentId() ?? '';
+            $children[isset($pages[$parentId]) ? $parentId : ''][] = $page;
+        }
+
+        $sorted = [];
+        $this->appendSubtree('', $children, $sorted);
+
+        return $sorted;
+    }
+
+    /**
+     * @param array<array-key, list<ConfluencePage>> $children
+     * @param array<array-key, ConfluencePage> $sorted
+     */
+    private function appendSubtree(string $parentId, array $children, array &$sorted): void
+    {
+        $siblings = $children[$parentId] ?? [];
+        usort($siblings, static fn (ConfluencePage $a, ConfluencePage $b): int =>
+            [$a->getPosition() ?? PHP_INT_MAX, $a->getTitle()] <=> [$b->getPosition() ?? PHP_INT_MAX, $b->getTitle()]);
+
+        foreach ($siblings as $page) {
+            $sorted[$page->getId()] = $page;
+            $this->appendSubtree((string) $page->getId(), $children, $sorted);
+        }
     }
 
     /**
