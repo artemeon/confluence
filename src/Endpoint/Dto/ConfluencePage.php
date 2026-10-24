@@ -139,6 +139,28 @@ class ConfluencePage
     }
 
     /**
+     * ID of the direct parent page, requires the `ancestors` expansion.
+     */
+    public function getParentId(): ?string
+    {
+        $ancestors = $this->rawData['ancestors'] ?? [];
+        $parent = end($ancestors);
+
+        return isset($parent['id']) ? (string) $parent['id'] : null;
+    }
+
+    /**
+     * Manual position among its siblings, requires the `extensions.position` expansion.
+     * Null if the page was never moved manually (Confluence then sorts it by title).
+     */
+    public function getPosition(): ?int
+    {
+        $position = $this->rawData['extensions']['position'] ?? null;
+
+        return is_int($position) && $position >= 0 ? $position : null;
+    }
+
+    /**
      * @return array<array-key, mixed>
      */
     public function getRawData(): array
