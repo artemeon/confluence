@@ -97,8 +97,9 @@ class Content
             [$a->getPosition() ?? PHP_INT_MAX, $a->getTitle()] <=> [$b->getPosition() ?? PHP_INT_MAX, $b->getTitle()]);
 
         foreach ($siblings as $page) {
-            $sorted[$page->getId()] = $page;
-            $this->appendSubtree((string) $page->getId(), $children, $sorted);
+            $pageId = (string) $page->getId();
+            $sorted[$pageId] = $page;
+            $this->appendSubtree($pageId, $children, $sorted);
         }
     }
 
