@@ -107,25 +107,35 @@ class Content
      */
     public function findChildAttachments(string $pageId): array
     {
-        $response = $this->client->get(
-            'wiki/rest/api/content/' . $pageId . '/child/attachment',
-            array_merge([
-                'query' => [
-                    'expand' => 'history,history.lastUpdated'
-                ]
-            ], $this->auth->getAuthenticationArray())
-        );
-
-        if ($response->getStatusCode() !== 200) {
-            throw new Exception('Error retrieving attachments. HTTP status code: ' . $response->getStatusCode());
-        }
-
-        $attachmentsData = json_decode($response->getBody()->getContents(), true);
         $attachments = [];
+        $start = 0;
 
-        foreach ($attachmentsData['results'] as $attachmentRawData) {
-            $attachments[] = new ConfluenceAttachment($attachmentRawData);
-        }
+        do {
+            $response = $this->client->get(
+                'wiki/rest/api/content/' . $pageId . '/child/attachment',
+                array_merge([
+                    'query' => [
+                        'expand' => 'history,history.lastUpdated',
+                        'start' => $start,
+                        'limit' => 200,
+                    ]
+                ], $this->auth->getAuthenticationArray())
+            );
+
+            if ($response->getStatusCode() !== 200) {
+                throw new Exception('Error retrieving attachments. HTTP status code: ' . $response->getStatusCode());
+            }
+
+            $attachmentsData = json_decode($response->getBody()->getContents(), true);
+
+            foreach ($attachmentsData['results'] as $attachmentRawData) {
+                $attachments[] = new ConfluenceAttachment($attachmentRawData);
+            }
+
+            // Confluence may cap the requested limit, so page by the limit it actually applied.
+            $pageLimit = $attachmentsData['limit'] ?? 0;
+            $start += $pageLimit;
+        } while ($pageLimit > 0 && count($attachmentsData['results']) >= $pageLimit);
 
         return $attachments;
     }
