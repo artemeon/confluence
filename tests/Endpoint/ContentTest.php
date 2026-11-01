@@ -8,13 +8,17 @@ use Artemeon\Confluence\Endpoint\Auth;
 use Artemeon\Confluence\Endpoint\Content;
 use Artemeon\Confluence\Endpoint\Dto\ConfluenceAttachment;
 use Artemeon\Confluence\Endpoint\Dto\ConfluencePage;
+use ArrayObject;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 
 /**
  * The content endpoint parses Confluence JSON responses into DTOs and fails loudly on
@@ -22,6 +26,9 @@ use PHPUnit\Framework\TestCase;
  */
 final class ContentTest extends TestCase
 {
+    /** @var ArrayObject<int, array{request: RequestInterface}> requests sent by the last {@see content()} client */
+    private ArrayObject $history;
+
     public function testFindChildAttachmentsParsesResultsIntoDtos(): void
     {
         $json = json_encode([
@@ -38,6 +45,24 @@ final class ContentTest extends TestCase
         self::assertContainsOnlyInstancesOf(ConfluenceAttachment::class, $attachments);
         self::assertSame('a1', $attachments[0]->getId());
         self::assertSame('second.png', $attachments[1]->getTitle());
+    }
+
+    public function testFindChildAttachmentsFollowsPaginationUntilAShortPage(): void
+    {
+        $page = static fn (int $from, int $count): Response => new Response(200, [], json_encode([
+            'results' => array_map(static fn (int $i): array => ['id' => 'a'.$i, 'title' => 'a'.$i.'.png'], range($from, $from + $count - 1)),
+            'limit' => 2,
+            'size' => $count,
+        ], JSON_THROW_ON_ERROR));
+        $content = $this->content($page(0, 2), $page(2, 2), $page(4, 1));
+
+        $attachments = $content->findChildAttachments('123');
+
+        self::assertSame(['a0', 'a1', 'a2', 'a3', 'a4'], array_map(static fn (ConfluenceAttachment $a): string => $a->getId(), $attachments));
+        self::assertSame(['0', '2', '4'], array_map(
+            static fn (array $transaction) => Query::parse($transaction['request']->getUri()->getQuery())['start'],
+            $this->history->getArrayCopy(),
+        ));
     }
 
     public function testFindChildAttachmentsReturnsEmptyListWhenThereAreNoAttachments(): void
@@ -108,9 +133,11 @@ final class ContentTest extends TestCase
         $content->findPageContent('p9');
     }
 
-    private function content(Response $response): Content
+    private function content(Response ...$responses): Content
     {
-        $stack = HandlerStack::create(new MockHandler([$response]));
+        $history = $this->history = new ArrayObject();
+        $stack = HandlerStack::create(new MockHandler(array_values($responses)));
+        $stack->push(Middleware::history($history));
         $client = new Client(['handler' => $stack, 'base_uri' => 'https://example.atlassian.net/']);
 
         return new Content($client, new Auth('user@example.com', 'secret-token'));
