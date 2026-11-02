@@ -76,6 +76,32 @@ final class ConfluencePageContentDownloaderTest extends TestCase
         self::assertSame('<p>original</p>', $savedContent);
     }
 
+    /**
+     * #29438: images in included content reference the included page's attachments, so those are
+     * downloaded into the including page's folder as well.
+     */
+    public function testDownloadsAttachmentsOfIncludedPages(): void
+    {
+        $ownAttachment = new ConfluenceAttachment(['id' => 'att1', 'title' => 'own.png']);
+        $includedAttachment = new ConfluenceAttachment(['id' => 'att2', 'title' => 'included.png']);
+
+        $content = $this->createMock(Content::class);
+        $content->method('findChildAttachments')->willReturnMap([['123', [$ownAttachment]], ['456', [$includedAttachment]]]);
+
+        $downloadedAttachments = [];
+        $download = $this->createMock(Download::class);
+        $download->method('downloadAttachment')->willReturnCallback(
+            static function (ConfluenceAttachment $attachment, string $pageId) use (&$downloadedAttachments): void {
+                $downloadedAttachments[] = [$attachment->getTitle(), $pageId];
+            },
+        );
+
+        $downloader = new ConfluencePageContentDownloader($content, $download);
+        $downloader->downloadPageContent($this->page('123'), additionalAttachmentPageIds: ['456']);
+
+        self::assertSame([['own.png', '123'], ['included.png', '456']], $downloadedAttachments);
+    }
+
     public function testDoesNotDownloadAttachmentsWhenDisabled(): void
     {
         $content = $this->createMock(Content::class);

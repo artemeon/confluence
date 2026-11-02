@@ -34,7 +34,11 @@ class ConfluencePageContentDownloader
         $this->logger = $logger ?? new NullLogger();
     }
 
-    public function downloadPageContent(ConfluencePage $page, bool $withAttachments = true): void
+    /**
+     * @param list<string> $additionalAttachmentPageIds pages whose attachments are downloaded into this page's folder as well,
+     *                                                  e.g. the pages included via {@see \Artemeon\Confluence\MacroReplacer\IncludeMacroReplacer}
+     */
+    public function downloadPageContent(ConfluencePage $page, bool $withAttachments = true, array $additionalAttachmentPageIds = []): void
     {
         try {
             foreach ($this->macroReplacers as $macroReplacer) {
@@ -56,9 +60,11 @@ class ConfluencePageContentDownloader
                 return;
             }
 
-            $attachments = $this->contentEndpoint->findChildAttachments($pageId);
-            foreach ($attachments as $attachment) {
-                $this->downloadEndpoint->downloadAttachment($attachment, $pageId);
+            // Same-named attachments overwrite each other; prefix the file names if that ever becomes a problem.
+            foreach ([$pageId, ...$additionalAttachmentPageIds] as $attachmentPageId) {
+                foreach ($this->contentEndpoint->findChildAttachments($attachmentPageId) as $attachment) {
+                    $this->downloadEndpoint->downloadAttachment($attachment, $attachmentPageId);
+                }
             }
         } catch (Exception $e) {
             $this->logger->error(
