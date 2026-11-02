@@ -85,6 +85,29 @@ final class ContentTest extends TestCase
         self::assertSame('Page two', $pages['p2']->getTitle());
     }
 
+    public function testFindPagesInSpaceReturnsPagesInPageTreeOrder(): void
+    {
+        $home = ['id' => '1'];
+        $json = json_encode([
+            'results' => [
+                ['id' => '5', 'title' => 'Alpha', 'ancestors' => [$home], 'extensions' => ['position' => 'none']],
+                ['id' => '3', 'title' => 'Second', 'ancestors' => [$home], 'extensions' => ['position' => 2]],
+                ['id' => '6', 'title' => 'Orphan', 'ancestors' => [['id' => '99']]],
+                ['id' => '4', 'title' => 'Nested', 'ancestors' => [$home, ['id' => '2']]],
+                ['id' => '2', 'title' => 'First', 'ancestors' => [$home], 'extensions' => ['position' => 1]],
+                ['id' => '1', 'title' => 'Home', 'ancestors' => []],
+            ],
+            'limit' => 200,
+            'size' => 6,
+        ], JSON_THROW_ON_ERROR);
+        $content = $this->content(new Response(200, [], $json));
+
+        $titles = array_map(static fn (ConfluencePage $page): ?string => $page->getTitle(), $content->findPagesInSpace('SPACE'));
+
+        self::assertSame(['Home', 'First', 'Nested', 'Second', 'Alpha', 'Orphan'], array_values($titles));
+        self::assertSame([1, 2, 4, 3, 5, 6], array_keys($titles));
+    }
+
     public function testFindPageContentParsesASinglePage(): void
     {
         $json = json_encode([
